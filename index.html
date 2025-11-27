@@ -3,209 +3,255 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rebel Codebreaker Terminal</title>
+  <title>Rebel Cipher Vault</title>
   <style>
-    body {
-      font-family: 'Courier New', monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-      background: url('https://via.placeholder.com/400x600/000000/00ff00?text=Star+Wars+Background') no-repeat center center fixed;
-      background-size: cover;
-      color: #00ff00;
-    }
-    #game-container {
-      text-align: center;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 20px;
-      border: 2px solid #00ff00;
-      border-radius: 5px;
-      max-width: 800px;
-    }
-    #encrypted-quote {
-      font-size: 18px;
-      margin: 20px 0;
-      white-space: pre-wrap;
-    }
-    #mapping-container {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
-    }
-    .mapping {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .mapping label {
-      font-size: 16px;
-    }
-    input {
-      padding: 5px;
-      font-size: 16px;
-      background-color: #000;
-      color: #00ff00;
-      border: 1px solid #00ff00;
-      width: 40px;
-      text-transform: uppercase;
-    }
-    .locked {
-      background-color: #444;
-      color: #00ff00;
-      border: none;
-      cursor: not-allowed;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      background-color: #00ff00;
-      color: #000;
-      border: none;
-      border-radius: 3px;
-      margin-top: 10px;
-    }
-    button:hover {
-      background-color: #00cc00;
-    }
-    #decoded-quote {
-      font-size: 18px;
-      margin: 20px 0;
-      white-space: pre-wrap;
-      color: #ffff00; /* Yellow for decoded text */
-    }
-    #result {
-      margin-top: 20px;
-      font-weight: bold;
-    }
+      body {
+          font-family: 'Courier New', monospace;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          margin: 0;
+          background-size: cover;
+          color: #00ff00;
+          padding: 10px;
+      }
+      #game-container {
+          text-align: center;
+          background: rgba(0, 0, 0, 0.85);
+          padding: 20px;
+          border: 2px solid #00ff00;
+          border-radius: 8px;
+          max-width: 95%;
+          width: 800px;
+          box-sizing: border-box;
+      }
+      #encrypted-quote {
+          font-size: 18px;
+          margin: 20px 0;
+          white-space: normal;      /* allow natural wrapping */
+          word-break: normal;       /* keep whole words intact */
+          overflow-wrap: anywhere;  /* fallback for small screens */
+      }
+      #mapping-container {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+          gap: 12px;
+          margin: 20px 0;
+      }
+      .mapping {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+      }
+      .mapping label {
+          font-size: 14px;
+          margin-bottom: 4px;
+      }
+      input {
+          padding: 6px;
+          font-size: 16px;
+          background-color: #000;
+          color: #00ff00;
+          border: 1px solid #00ff00;
+          width: 45px;
+          text-transform: uppercase;
+          text-align: center;
+          border-radius: 4px;
+      }
+      /*.locked {*/
+      /*    background-color: #444;*/
+      /*    color: #00ff00;*/
+      /*    border: none;*/
+      /*    cursor: not-allowed;*/
+      /*}*/
+      button {
+          padding: 10px 20px;
+          font-size: 16px;
+          cursor: pointer;
+          background-color: #00ff00;
+          color: #000;
+          border: none;
+          border-radius: 4px;
+          margin-top: 10px;
+      }
+      button:hover {
+          background-color: #00cc00;
+      }
+      #decoded-quote {
+          font-size: 18px;
+          margin: 20px 0;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          color: #ffff00;
+      }
+      #result {
+          margin-top: 20px;
+          font-weight: bold;
+          word-wrap: break-word;
+      }
   </style>
+
 </head>
 <body>
-  <div id="game-container">
-    <h1>REBEL CODEBREAKER TERMINAL</h1>
-    <p>DECODE THE INTERCEPTED JEDI MESSAGE (VERY DIFFICULT NUMBER CIPHER):</p>
-    <div id="encrypted-quote"></div>
-    <p>MAP REMAINING NUMBERS (0-25) TO PLAIN LETTERS (A-Z, ONE-TO-ONE, NO REPEATS). HINT: 5=F, 12=S ARE SHOWN.</p>
-    <div id="mapping-container"></div>
-    <button onclick="decodeQuote()">DECODE</button>
-    <div id="decoded-quote"></div>
-    <div id="result"></div>
-  </div>
-  <script>
-    const originalQuote = 'FEAR IS THE PATH TO THE DARK SIDE FEAR LEADS TO ANGER ANGER LEADS TO HATE HATE LEADS TO SUFFERING';
-    // Random number mapping (0-25 to A-Z), with 5=F and 12=S fixed
-    const cipherMapping = {
-      5: 'F', 12: 'S', 23: 'E', 16: 'A', 3: 'R', 9: 'I', 0: 'T', 19: 'H', 7: 'P', 21: 'O', 15: 'D', 2: 'K', 10: 'L', 17: 'N', 4: 'G', 24: 'U'
-    };
-    const plainToCipher = {};
-    for (let num in cipherMapping) {
-      plainToCipher[cipherMapping[num].charCodeAt(0) - 65] = parseInt(num); // A=0, B=1, etc.
-    }
-    const encryptedQuoteArray = originalQuote.split('').map(char => {
-      if (char === ' ') return ' ';
-      const num = plainToCipher[char.charCodeAt(0) - 65];
-      if (num === 5) return 'F';
-      if (num === 12) return 'S';
-      return num !== undefined ? num.toString() : (char.charCodeAt(0) - 65).toString();
+<div id="game-container">
+  <h1>REBEL CIPHER VAULT</h1>
+  <p>DECODE THE ENCRYPTED IMPERIAL MESSAGE:</p>
+  <div id="encrypted-quote"></div>
+  <p>MAP THE NUMBERS (0-9) TO THE MISSING LETTERS (A-Z, ONE-TO-ONE, NO REPEATS).</p>
+  <div id="mapping-container"></div>
+  <button onclick="decodeQuote()">DECODE</button>
+  <div id="decoded-quote"></div>
+  <div id="result"></div>
+</div>
+<script>
+  const originalQuote = 'THE SWIFTEST PATH TO DESTRUCTION IS THROUGH VENGEANCE';
+
+  // Step 1: pick only 10 letters for the cryptogram
+  const uniqueLetters = [...new Set(originalQuote.replace(/[^A-Z]/g, '').split(''))];
+  const shuffled = uniqueLetters.sort(() => Math.random() - 0.5);
+  const selectedLetters = shuffled.slice(0, 10); // exactly 10 hidden letters
+
+  // Build cipher mapping: assign digits 0–9 to the 10 letters
+  const cipherMapping = {};
+  selectedLetters.forEach((letter, i) => {
+    cipherMapping[i] = letter; // number i maps to that letter
+  });
+
+  // Build reverse mapping: letter → digit
+  const plainToCipher = {};
+  for (let num in cipherMapping) {
+    plainToCipher[cipherMapping[num].charCodeAt(0) - 65] = parseInt(num);
+  }
+
+  // Step 2: Encrypt quote
+  // Build encrypted quote word-by-word
+  const encryptedQuoteArray = originalQuote.split(' ').map(word => {
+    return word.split('').map(char => {
+      if (char === '.' || char === ',') return char;
+      const plainIndex = char.charCodeAt(0) - 65;
+      const num = plainToCipher[plainIndex];
+      return num !== undefined ? num.toString() : char;
+    }).join('');
+  });
+
+  let userMapping = {};
+
+  function renderEncryptedQuote() {
+    document.getElementById('encrypted-quote').textContent = encryptedQuoteArray.join(' ');
+  }
+
+
+  function renderMappings() {
+    const mappingContainer = document.getElementById('mapping-container');
+    mappingContainer.innerHTML = '';
+
+    // Extract all digits 0–9 from encrypted words
+    const numbersInUse = [...new Set(
+      encryptedQuoteArray.join(' ').match(/\d/g) || []
+    )];
+
+    numbersInUse.forEach(num => {
+      const mappingDiv = document.createElement('div');
+      mappingDiv.className = 'mapping';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.maxLength = '1';
+      input.dataset.number = num;
+
+      mappingDiv.innerHTML = `<label>${num}</label>`;
+      mappingDiv.appendChild(input);
+      mappingContainer.appendChild(mappingDiv);
+    });
+  }
+
+
+  function updateDecodedQuote() {
+    const inputs = document.querySelectorAll('input');
+    const currentMappings = {};
+
+    // Collect live user mappings from inputs
+    inputs.forEach(input => {
+      const num = input.dataset.number;
+      const letter = input.value.toUpperCase();
+      if (letter) {
+        currentMappings[num] = letter;
+      }
     });
 
-    let userMapping = {};
-
-    function renderEncryptedQuote() {
-      document.getElementById('encrypted-quote').textContent = encryptedQuoteArray.join(' ');
-    }
-
-    function renderMappings() {
-      const mappingContainer = document.getElementById('mapping-container');
-      mappingContainer.innerHTML = '';
-      for (let i = 0; i <= 25; i++) {
-        const mappingDiv = document.createElement('div');
-        mappingDiv.className = 'mapping';
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.maxlength = '1';
-        input.dataset.number = i;
-        if (i === 5 || i === 12) {
-          input.value = cipherMapping[i];
-          input.classList.add('locked');
-          input.disabled = true;
+    // Build decoded text word-by-word
+    const decodedArray = encryptedQuoteArray.map(word =>
+      word.split('').map(char => {
+        if (/\d/.test(char)) {
+          // Show user's letter if they entered one, else keep the number
+          return currentMappings[char] || char;
         }
-        mappingDiv.innerHTML = `<label>${i}</label>`;
-        mappingDiv.appendChild(input);
-        mappingContainer.appendChild(mappingDiv);
+        return char;
+      }).join('')
+    );
+
+    document.getElementById('decoded-quote').textContent = decodedArray.join(' ');
+  }
+
+  function decodeQuote() {
+    const inputs = document.querySelectorAll('input');
+    const usedPlains = new Set();
+    userMapping = {};
+    let isValid = true;
+
+    // collect mappings
+    inputs.forEach(input => {
+      const num = input.dataset.number;
+      const plain = input.value.toUpperCase();
+      if (plain && !input.disabled) {
+        if (usedPlains.has(plain)) isValid = false;
+        usedPlains.add(plain);
+        userMapping[num] = plain;
       }
+    });
+
+    if (!isValid) {
+      document.getElementById('result').innerHTML = 'MAPPING INVALID. NO REPEAT LETTERS.';
+      document.getElementById('result').style.color = '#ff0000';
+      return;
     }
 
-    function updateDecodedQuote() {
-      userMapping = {};
-      const inputs = document.querySelectorAll('input');
-      const usedPlains = new Set();
-      inputs.forEach(input => {
-        const num = parseInt(input.dataset.number);
-        const plain = input.value.toUpperCase();
-        if (plain && !input.disabled) {
-          if (usedPlains.has(plain)) return; // Skip if duplicate
-          usedPlains.add(plain);
-          userMapping[num] = plain.charCodeAt(0) - 65; // Convert to 0-25 index
-        } else if (input.disabled) {
-          userMapping[num] = cipherMapping[num].charCodeAt(0) - 65;
+    // build decoded quote word-by-word, character-by-character
+    const decodedWords = encryptedQuoteArray.map(word => {
+      return word.split('').map(char => {
+        if (/\d/.test(char)) {
+          return userMapping[char] || char; // replace digit if mapped
         }
-      });
-      const decodedArray = encryptedQuoteArray.map(item => {
-        if (item === ' ') return ' ';
-        if (item === 'F' || item === 'S') return item;
-        const n = parseInt(item);
-        return userMapping[n] !== undefined ? String.fromCharCode(userMapping[n] + 65) : '?';
-      });
-      document.getElementById('decoded-quote').textContent = decodedArray.join(' ');
-    }
-
-    function decodeQuote() {
-      userMapping = {};
-      const inputs = document.querySelectorAll('input');
-      let isValid = true;
-      const usedPlains = new Set();
-      inputs.forEach(input => {
-        const num = parseInt(input.dataset.number);
-        const plain = input.value.toUpperCase();
-        if (plain && !input.disabled) {
-          if (usedPlains.has(plain)) isValid = false;
-          usedPlains.add(plain);
-          userMapping[num] = plain.charCodeAt(0) - 65; // Convert to 0-25 index
-        } else if (input.disabled) {
-          userMapping[num] = cipherMapping[num].charCodeAt(0) - 65;
-        }
-      });
-      if (!isValid) {
-        document.getElementById('result').innerHTML = 'MAPPING INVALID. NO REPEAT LETTERS.';
-        document.getElementById('result').style.color = '#ff0000';
-        return;
-      }
-      let decoded = encryptedQuoteArray.map(item => {
-        if (item === ' ') return ' ';
-        if (item === 'F' || item === 'S') return item;
-        const n = parseInt(item);
-        return String.fromCharCode(userMapping[n] !== undefined ? userMapping[n] + 65 : n + 65);
+        return char; // revealed letters or punctuation
       }).join('');
-      document.getElementById('decoded-quote').textContent = decoded;
-      if (decoded === originalQuote) {
-        document.getElementById('result').innerHTML = 'MESSAGE DECODED. PASSWORD: <strong>DARKPATH</strong>';
-        document.getElementById('result').style.color = '#00ff00';
-      } else {
-        document.getElementById('result').innerHTML = 'DECODING ERROR. TRY AGAIN.';
-        document.getElementById('result').style.color = '#ff0000';
-      }
-    }
-
-    // Initialize and add input event listener for real-time decoding
-    renderEncryptedQuote();
-    renderMappings();
-    document.querySelectorAll('input').forEach(input => {
-      input.addEventListener('input', updateDecodedQuote);
     });
-  </script>
+
+    const decoded = decodedWords.join(' ');
+    document.getElementById('decoded-quote').textContent = decoded;
+
+    // normalize for comparison
+    const normalizedDecoded = decoded.replace(/\s+/g,'').toUpperCase();
+    const normalizedOriginal = originalQuote.replace(/\s+/g,'').toUpperCase();
+
+    if (normalizedDecoded === normalizedOriginal) {
+      document.getElementById('result').innerHTML = 'MESSAGE DECODED. PASSWORD: <strong>VENGEANCE</strong>' +
+        '<br/><br/> Go to the Homestead to continue.';
+      document.getElementById('result').style.color = '#00ff00';
+    } else {
+      document.getElementById('result').innerHTML = 'DECODING ERROR. TRY AGAIN.';
+      document.getElementById('result').style.color = '#ff0000';
+    }
+  }
+
+  // Initialize
+  renderEncryptedQuote();
+  renderMappings();
+  document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', updateDecodedQuote);
+  });
+</script>
+
 </body>
 </html>
