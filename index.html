@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rebel Cipher Vault</title>
+  <title>Rebel Codebreaker Terminal</title>
   <style>
       body {
           font-family: 'Courier New', monospace;
@@ -61,12 +61,6 @@
           text-align: center;
           border-radius: 4px;
       }
-      /*.locked {*/
-      /*    background-color: #444;*/
-      /*    color: #00ff00;*/
-      /*    border: none;*/
-      /*    cursor: not-allowed;*/
-      /*}*/
       button {
           padding: 10px 20px;
           font-size: 16px;
@@ -97,8 +91,8 @@
 </head>
 <body>
 <div id="game-container">
-  <h1>REBEL CIPHER VAULT</h1>
-  <p>DECODE THE ENCRYPTED IMPERIAL MESSAGE:</p>
+  <h1>REBEL CODEBREAKER TERMINAL</h1>
+  <p>DECODE THE INTERCEPTED JEDI MESSAGE:</p>
   <div id="encrypted-quote"></div>
   <p>MAP THE NUMBERS (0-9) TO THE MISSING LETTERS (A-Z, ONE-TO-ONE, NO REPEATS).</p>
   <div id="mapping-container"></div>
@@ -107,7 +101,7 @@
   <div id="result"></div>
 </div>
 <script>
-  const originalQuote = 'THE SWIFTEST PATH TO DESTRUCTION IS THROUGH VENGEANCE';
+  const originalQuote = 'FEAR IS THE PATH TO THE DARK SIDE. FEAR LEADS TO ANGER. ANGER LEADS TO HATE. HATE LEADS TO SUFFERING';
 
   // Step 1: pick only 10 letters for the cryptogram
   const uniqueLetters = [...new Set(originalQuote.replace(/[^A-Z]/g, '').split(''))];
@@ -236,7 +230,7 @@
     const normalizedOriginal = originalQuote.replace(/\s+/g,'').toUpperCase();
 
     if (normalizedDecoded === normalizedOriginal) {
-      document.getElementById('result').innerHTML = 'MESSAGE DECODED. PASSWORD: <strong>VENGEANCE</strong>' +
+      document.getElementById('result').innerHTML = 'MESSAGE DECODED. PASSWORD: <strong>DARKPATH</strong>' +
         '<br/><br/> Go to the Homestead to continue.';
       document.getElementById('result').style.color = '#00ff00';
     } else {
