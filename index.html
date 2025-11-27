@@ -94,7 +94,7 @@
   <h1>REBEL CODEBREAKER TERMINAL</h1>
   <p>DECODE THE INTERCEPTED JEDI MESSAGE:</p>
   <div id="encrypted-quote"></div>
-  <p>MAP THE NUMBERS (0-9) TO THE MISSING LETTERS (A-Z, ONE-TO-ONE, NO REPEATS).</p>
+  <p>MAP THE NUMBERS (0-5) TO THE MISSING LETTERS (A-Z, ONE-TO-ONE, NO REPEATS).</p>
   <div id="mapping-container"></div>
   <button onclick="decodeQuote()">DECODE</button>
   <div id="decoded-quote"></div>
@@ -106,9 +106,9 @@
   // Step 1: pick only 10 letters for the cryptogram
   const uniqueLetters = [...new Set(originalQuote.replace(/[^A-Z]/g, '').split(''))];
   const shuffled = uniqueLetters.sort(() => Math.random() - 0.5);
-  const selectedLetters = shuffled.slice(0, 10); // exactly 10 hidden letters
+  const selectedLetters = shuffled.slice(0, 6); // exactly 6 hidden letters
 
-  // Build cipher mapping: assign digits 0–9 to the 10 letters
+  // Build cipher mapping: assign digits 0–5 to the 6 letters
   const cipherMapping = {};
   selectedLetters.forEach((letter, i) => {
     cipherMapping[i] = letter; // number i maps to that letter
@@ -142,7 +142,7 @@
     const mappingContainer = document.getElementById('mapping-container');
     mappingContainer.innerHTML = '';
 
-    // Extract all digits 0–9 from encrypted words
+    // Extract all digits 0–5 from encrypted words
     const numbersInUse = [...new Set(
       encryptedQuoteArray.join(' ').match(/\d/g) || []
     )];
